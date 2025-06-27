@@ -21,8 +21,16 @@ export const useCanvasNavigation = (canvasRef) => {
       y: (mousePos.y - offset.y) / scale,
     };
 
-    const zoomFactor = 1.05;
+    // --- LÓGICA DE ZOOM DINÂMICO ---
+    // 1. Defina a sensibilidade do zoom. Valores maiores = zoom mais rápido.
+    const zoomSensitivity = 0.0008;
+
+    // 2. Calcule o fator de zoom com base na velocidade do scroll (event.deltaY).
+    const zoomFactor = Math.pow(1 + zoomSensitivity, Math.abs(event.deltaY));
+
+    // 3. Aplique o zoom na direção correta.
     const newScale = Math.max(0.1, event.deltaY < 0 ? scale * zoomFactor : scale / zoomFactor);
+    // --- FIM DA LÓGICA ---
 
     const newOffset = {
       x: mousePos.x - worldPointBeforeZoom.x * newScale,

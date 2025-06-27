@@ -20,7 +20,7 @@ const Canvas = ({ elements, setElements, commit, undo, redo, setPerfMetrics }) =
     handleMouseUp
   } = useCanvasInteraction(elements, setElements, commit, canvasRef, offset, scale, setOffset);
 
-  const { bringToFront, sendToBack } = useLayerOperations({ 
+  const { bringToFront, sendToBack, bringForward, sendBackward } = useLayerOperations({ 
     elements, 
     selectedElementIds, 
     setElements, 
@@ -36,6 +36,8 @@ const Canvas = ({ elements, setElements, commit, undo, redo, setPerfMetrics }) =
     redo, 
     bringToFront, 
     sendToBack, 
+    bringForward,
+    sendBackward,
   });
 
   // O novo hook de renderização assume a complexidade do useEffect.

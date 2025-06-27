@@ -26,6 +26,7 @@ import { tryStartPanning } from '../interactions/pan';
 import { tryStartTransform } from '../interactions/transform';
 import { tryStartDragging } from '../interactions/drag';
 import { startMarqueeSelection } from '../interactions/select';
+import { tryDuplicateOnDrag } from '../interactions/duplicate';
 
 // Helper para clonar profundamente, garantindo que não haja referências presas.
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -34,10 +35,14 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
   const [selectedElementIds, setSelectedElementIds] = useState([]);
   const [selectionRect, setSelectionRect] = useState(null);
   const interactionState = useRef({ handler: null, data: {} });
+  const didDuplicateOnDragRef = useRef(false);
 
   const { selectionBox, groupRotation, activeGroupBoundingBox, setActiveGroupBoundingBox } = useSelectionBox(elements, selectedElementIds);
 
   const handleMouseDown = useCallback((event) => {
+    // Reseta a flag de duplicação no início de cada nova interação.
+    didDuplicateOnDragRef.current = false;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -69,6 +74,14 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // A lógica de duplicação é verificada antes de mover os elementos.
+    tryDuplicateOnDrag({
+      event,
+      interactionState,
+      setSelectedElementIds,
+      didDuplicateOnDragRef,
+    });
+
     const mousePos = getMousePosition(event, canvas);
     const worldPos = getPointInWorld(mousePos, offset, scale);
 
@@ -97,6 +110,9 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
       }
     }
 
+    if (data.type === 'panning') {
+      interactionState.current.data.lastPanPoint = mousePos;
+    }
     if (data.lastWorldPos) {
       interactionState.current.data.lastWorldPos = worldPos;
     }
@@ -108,7 +124,10 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
 
     const { type, initialGroupState, startElements, liveElements } = data;
 
-    if (['dragging', 'resizing', 'rotating'].includes(type) && liveElements) {
+    // Se a duplicação ocorreu, o estado já foi modificado e só precisa ser salvo.
+    if (didDuplicateOnDragRef.current) {
+      commit(liveElements);
+    } else if (['dragging', 'resizing', 'rotating'].includes(type) && liveElements) {
       const initial = initialGroupState ? initialGroupState.elements : (startElements || []).map(s => s.element || s);
       if (haveElementsChanged(initial, liveElements.filter(el => initial.some(i => i.id === el.id)))) {
         setElements(liveElements);

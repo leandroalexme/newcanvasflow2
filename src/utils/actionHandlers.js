@@ -1,9 +1,11 @@
 import { translateElements, rotateElement, resizeElement, transformGroup_rotate, transformGroup_resize } from './transformations';
 
-export const handlePanning = (mousePos, lastPanPoint, setOffset) => {
+export const handlePanning = (context) => {
+  const { mousePos, data, setOffset } = context;
+  const { lastPanPoint } = data;
+
   if (!lastPanPoint) {
-    // If it's the first pan event, just store the current position.
-    return mousePos;
+    return;
   }
   const dx = mousePos.x - lastPanPoint.x;
   const dy = mousePos.y - lastPanPoint.y;

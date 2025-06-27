@@ -59,7 +59,7 @@ export const tryStartDragging = (context) => {
   // Correção-chave: Se for uma nova seleção, calcula a caixa de interação
   // imediatamente, em vez de depender do `selectionBox` do estado anterior.
   const interactionBox = isNewSelection
-    ? calculateGroupSelectionBox(elementsToDrag)
+    ? (elementsToDrag.length === 1 ? elementsToDrag[0] : calculateGroupSelectionBox(elementsToDrag))
     : selectionBox;
 
   let initialGroupState = null;
