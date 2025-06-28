@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   getPointInWorld,
   getClickedElement,
@@ -26,7 +26,6 @@ import { tryStartPanning } from '../interactions/pan';
 import { tryStartTransform } from '../interactions/transform';
 import { tryStartDragging } from '../interactions/drag';
 import { startMarqueeSelection } from '../interactions/select';
-import { useKeyMonitor } from './useKeyMonitor';
 
 // Helper para clonar profundamente, garantindo que não haja referências presas.
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -35,7 +34,28 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
   const [selectedElementIds, setSelectedElementIds] = useState([]);
   const [selectionRect, setSelectionRect] = useState(null);
   const interactionState = useRef({ handler: null, data: {} });
-  const isDuplicateIntendedRef = useKeyMonitor();
+  const didDuplicateOnDragRef = useRef(false);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && interactionState.current.data.type === 'dragging') {
+        didDuplicateOnDragRef.current = true;
+      }
+    };
+    const handleKeyUp = (event) => {
+      if (!event.metaKey && !event.ctrlKey) {
+        didDuplicateOnDragRef.current = false;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const { selectionBox, groupRotation, activeGroupBoundingBox, setActiveGroupBoundingBox } = useSelectionBox(elements, selectedElementIds);
 
@@ -113,29 +133,21 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
 
     const { type, initialGroupState, startElements, liveElements } = data;
 
-    if (type === 'dragging') {
-      // Se a intenção de duplicar estiver ativa no momento do mouse-up...
-      if (isDuplicateIntendedRef.current) {
-        // 1. Cria cópias estáticas na posição original do arraste.
-        const staticCopies = startElements.map((element) => ({
-          ...element,
-          id: Date.now() + Math.random(),
-        }));
-
-        // 2. O estado final contém os elementos "vivos" (com os originais movidos) e as novas cópias.
-        const finalElements = [...liveElements, ...staticCopies];
-        commit(finalElements);
-
-        // 3. A seleção permanece nos elementos que foram movidos (os originais).
-        setSelectedElementIds(startElements.map(el => el.id));
-      } else {
-        // Lógica de arraste normal.
-        if (haveElementsChanged(startElements, liveElements.filter(el => startElements.some(i => i.id === el.id)))) {
-          commit(liveElements);
-        }
-      }
-    } else if (['resizing', 'rotating'].includes(type) && liveElements) {
-      if (haveElementsChanged(startElements, liveElements.filter(el => startElements.some(i => i.id === el.id)))) {
+    if (type === 'dragging' && didDuplicateOnDragRef.current) {
+      const movedElements = liveElements.filter(el =>
+        startElements.some(startEl => startEl.id === el.id)
+      );
+      const newClones = movedElements.map(el => ({
+        ...el,
+        id: Date.now() + Math.random(),
+      }));
+      const newCloneIds = newClones.map(c => c.id);
+      const finalElements = [...elements, ...newClones];
+      commit(finalElements);
+      setSelectedElementIds(newCloneIds);
+    } else if (['dragging', 'resizing', 'rotating'].includes(type) && liveElements) {
+      const initial = initialGroupState ? initialGroupState.elements : (startElements || []).map(s => s.element || s);
+      if (haveElementsChanged(initial, liveElements.filter(el => initial.some(i => i.id === el.id)))) {
         commit(liveElements);
       }
     }
@@ -152,7 +164,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     interactionState.current = { handler: null, data: {} };
     setActiveGroupBoundingBox(null);
     setSelectionRect(null);
-  }, [canvasRef, elements, selectionRect, commit, setSelectedElementIds, setActiveGroupBoundingBox, isDuplicateIntendedRef]);
+  }, [canvasRef, elements, selectionRect, commit, setSelectedElementIds, setActiveGroupBoundingBox]);
 
   return {
     selectedElementIds,
