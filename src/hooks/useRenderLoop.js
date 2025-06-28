@@ -14,6 +14,8 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
   const {
     elements,
     selectedElementIds,
+    hoveredElementId,
+    highlightedArtboardId,
     selectionRect,
     interactionState,
     selectionBox,
@@ -40,7 +42,7 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
       const elementsToRender = interactionState.current?.data?.liveElements || elements;
       const boxToDraw = interactionState.current?.data?.interactionBox || selectionBox;
 
-      drawScene(context, offset, scale, elementsToRender, selectedElementIds, selectionRect, perfMetrics, boxToDraw);
+      drawScene(context, offset, scale, elementsToRender, selectedElementIds, hoveredElementId, highlightedArtboardId, selectionRect, perfMetrics, boxToDraw);
       animationFrameId = window.requestAnimationFrame(renderLoop);
     };
     renderLoop();
@@ -58,6 +60,8 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
     dimensions,
     elements,
     selectedElementIds,
+    hoveredElementId,
+    highlightedArtboardId,
     selectionRect,
     interactionState,
     selectionBox,

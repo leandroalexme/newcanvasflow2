@@ -13,7 +13,7 @@ export const useSelectionBox = (elements, selectedElementIds) => {
         };
     }
 
-    const selectedElements = elements.filter(el => selectedElementIds.includes(el.id));
+    const selectedElements = elements.filter(el => selectedElementIds.includes(el.id) && el.type !== 'artboard');
 
     // Se nada estiver selecionado
     if (selectedElements.length === 0) {
@@ -22,7 +22,10 @@ export const useSelectionBox = (elements, selectedElementIds) => {
 
     // Se apenas um elemento estiver selecionado
     if (selectedElements.length === 1) {
-        return { selectionBox: selectedElements[0], groupRotation: 0 };
+        const singleElement = selectedElements[0];
+        // Para artboards, a selectionBox é o próprio elemento, pois ele já tem seu feedback visual.
+        // Para outros elementos, a selectionBox também é o elemento.
+        return { selectionBox: singleElement, groupRotation: singleElement.rotation || 0 };
     }
 
     // LÓGICA CENTRALIZADA PARA GRUPOS

@@ -12,13 +12,23 @@ const Canvas = ({ elements, setElements, commit, undo, redo, setPerfMetrics }) =
   const { 
     selectedElementIds, 
     setSelectedElementIds,
+    hoveredElementId,
+    highlightedArtboardId,
     selectionRect, 
     selectionBox,
     interactionState,
     handleMouseDown, 
     handleMouseMove, 
     handleMouseUp
-  } = useCanvasInteraction(elements, setElements, commit, canvasRef, offset, scale, setOffset);
+  } = useCanvasInteraction(
+    elements, 
+    setElements, 
+    commit, 
+    canvasRef, 
+    offset, 
+    scale, 
+    setOffset
+  );
 
   const { bringToFront, sendToBack, bringForward, sendBackward } = useLayerOperations({ 
     elements, 
@@ -44,6 +54,8 @@ const Canvas = ({ elements, setElements, commit, undo, redo, setPerfMetrics }) =
   const { perfMetrics } = useRenderLoop(canvasRef, { width: window.innerWidth, height: window.innerHeight }, {
     elements,
     selectedElementIds,
+    hoveredElementId,
+    highlightedArtboardId,
     selectionRect,
     interactionState,
     selectionBox,

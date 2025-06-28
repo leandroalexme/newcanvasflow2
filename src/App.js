@@ -3,11 +3,15 @@ import './index.css';
 import Canvas from './components/Canvas';
 import FpsCounter from './components/FpsCounter';
 import { useHistory } from './hooks/useHistory';
+import { createArtboard } from './artboard/artboardUtils';
+import { createElement } from './utils/element';
 
 const initialElements = [
-  { id: 1, type: 'rect', x: 50, y: 50, width: 100, height: 100, rotation: 0, fill: '#FFC107' },
-  { id: 2, type: 'rect', x: 200, y: 200, width: 150, height: 80, rotation: 0, fill: '#03A9F4' },
-  { id: 3, type: 'circle', x: 400, y: 150, radius: 50, fill: '#4CAF50' },
+  createArtboard(0, 0, 500, 400, 'Artboard 1'),
+  createArtboard(600, 0, 300, 400, 'Artboard 2'),
+  createElement('rect', { x: 50, y: 50, width: 100, height: 100, rotation: 0, fill: '#FFC107' }),
+  createElement('rect', { x: 200, y: 200, width: 150, height: 80, rotation: 0, fill: '#03A9F4' }),
+  createElement('circle', { x: 400, y: 150, radius: 50, fill: '#4CAF50' }),
 ];
 
 function App() {

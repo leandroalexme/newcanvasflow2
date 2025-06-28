@@ -11,6 +11,7 @@ export const getElementCenter = (element) => {
   const { type, x, y, width, height } = element;
 
   switch (type) {
+    case 'artboard':
     case 'rectangle':
     case 'ellipse':
     case 'text':
@@ -68,7 +69,7 @@ export const getHandles = (element, offset, scale) => {
   const center = getElementCenter(element);
   let unrotatedHandles;
 
-  if (element.type === 'rect' || element.type === 'group') {
+  if (element.type === 'rect' || element.type === 'group' || element.type === 'artboard') {
     const { x, y, width, height } = element;
 
 
@@ -92,8 +93,11 @@ export const getHandles = (element, offset, scale) => {
       'bottom-left': { ...p.bl, pivot: p.tr },
       'bottom-center': { ...p.bc, pivot: p.tc },
       'bottom-right': { ...p.br, pivot: p.tl },
-      'rotation': { x: p.tc.x, y: p.tc.y - ROTATION_HANDLE_OFFSET, pivot: center },
     };
+
+    if (element.type !== 'artboard') {
+      unrotatedHandles['rotation'] = { x: p.tc.x, y: p.tc.y - ROTATION_HANDLE_OFFSET, pivot: center };
+    }
 
   } else if (element.type === 'circle') {
     // Para círculos, as alças são baseadas na sua caixa delimitadora (bounding box).
@@ -443,22 +447,24 @@ export const getPointInWorld = (point, offset, scale) => ({
  * @returns {object|null} O elemento clicado ou nulo se nenhum foi encontrado.
  */
 export const getClickedElement = (worldPos, elements) => {
-  // Itera de trás para frente para checar os elementos renderizados por último primeiro
+  // Itera de trás para frente para pegar o elemento de cima primeiro
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i];
-    let hit = false;
+    let isClicked = false;
+
     switch (element.type) {
       case 'rect':
-        hit = isPointInRotatedRect(worldPos, element);
+        isClicked = isPointInRotatedRect(worldPos, element);
         break;
       case 'circle':
-        hit = isPointInCircle(worldPos, element);
+        isClicked = isPointInCircle(worldPos, element);
         break;
-      default:
+      case 'artboard':
+        isClicked = isPointInRect(worldPos, element);
         break;
     }
 
-    if (hit) {
+    if (isClicked) {
       return element;
     }
   }

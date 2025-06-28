@@ -1,11 +1,15 @@
 import { getHandles, rotatePoint } from './geometry';
+import { drawArtboard } from '../artboard/artboardRenderer';
 
-const drawElement = (context, element) => {
+const drawElement = (context, element, selectedElementIds, hoveredElementId, highlightedArtboardId, scale) => {
   context.save();
-  context.fillStyle = element.fill;
 
   switch (element.type) {
+    case 'artboard':
+      drawArtboard(context, element, selectedElementIds, hoveredElementId, highlightedArtboardId, scale);
+      break;
     case 'rect':
+      context.fillStyle = element.fill;
       const centerX = element.x + element.width / 2;
       const centerY = element.y + element.height / 2;
       context.translate(centerX, centerY);
@@ -14,6 +18,7 @@ const drawElement = (context, element) => {
       context.fillRect(element.x, element.y, element.width, element.height);
       break;
     case 'circle': {
+      context.fillStyle = element.fill;
       const { x, y, radius, rotation = 0 } = element;
       const radiusX = element.radiusX || radius;
       const radiusY = element.radiusY || radius;
@@ -45,10 +50,11 @@ const drawSelection = (context, elements, selectedElementIds, scale, groupBoundi
   const selectedElements = elements.filter(el => selectedElementIds.includes(el.id));
   if (selectedElements.length === 0) return;
 
-  // Determine what to draw handles for: a group box or a single element.
   const elementToDrawHandlesFor = groupBoundingBox || (selectedElements.length === 1 ? selectedElements[0] : null);
 
-  if (!elementToDrawHandlesFor) return; // Nothing to draw handles for.
+  if (!elementToDrawHandlesFor || elementToDrawHandlesFor.type === 'artboard') {
+    return;
+  }
 
   const handles = getHandles(elementToDrawHandlesFor);
   const { x, y, width, height, rotation = 0 } = elementToDrawHandlesFor;
@@ -111,7 +117,7 @@ const drawPerformanceMetrics = (context, perfMetrics) => {
   context.fillText(`MS: ${perfMetrics.ms.toFixed(2)}`, 10, 30);
 };
 
-export const drawScene = (context, offset, scale, elements, selectedElementIds, selectionRect, perfMetrics, groupBoundingBox) => {
+export const drawScene = (context, offset, scale, elements, selectedElementIds, hoveredElementId, highlightedArtboardId, selectionRect, perfMetrics, groupBoundingBox) => {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
   context.save();
@@ -119,10 +125,10 @@ export const drawScene = (context, offset, scale, elements, selectedElementIds, 
   context.scale(scale, scale);
 
   elements.forEach(element => {
-    drawElement(context, element);
+    drawElement(context, element, selectedElementIds, hoveredElementId, highlightedArtboardId, scale);
   });
 
-    drawSelection(context, elements, selectedElementIds, scale, groupBoundingBox);
+  drawSelection(context, elements, selectedElementIds, scale, groupBoundingBox);
 
   // Desenha a caixa de seleção por cima de tudo
   drawSelectionRect(context, selectionRect);

@@ -26,12 +26,15 @@ import { tryStartPanning } from '../interactions/pan';
 import { tryStartTransform } from '../interactions/transform';
 import { tryStartDragging } from '../interactions/drag';
 import { startMarqueeSelection } from '../interactions/select';
+import { tryStartArtboardResize } from '../artboard/artboardInteractions';
 
 // Helper para clonar profundamente, garantindo que não haja referências presas.
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
 
 export const useCanvasInteraction = (elements, setElements, commit, canvasRef, offset, scale, setOffset) => {
   const [selectedElementIds, setSelectedElementIds] = useState([]);
+  const [hoveredElementId, setHoveredElementId] = useState(null);
+  const [highlightedArtboardId, setHighlightedArtboardId] = useState(null);
   const [selectionRect, setSelectionRect] = useState(null);
   const interactionState = useRef({ handler: null, data: {} });
   const didDuplicateOnDragRef = useRef(false);
@@ -66,14 +69,18 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     const mousePos = getMousePosition(event, canvas);
     const worldPos = getPointInWorld(mousePos, offset, scale);
 
+    const selectedElements = elements.filter(el => selectedElementIds.includes(el.id));
+    const singleSelectedArtboard = selectedElements.length === 1 && selectedElements[0].type === 'artboard' ? selectedElements[0] : null;
+
     const context = {
       event, canvas, mousePos, worldPos, offset, scale,
-      elements, selectedElementIds, selectionBox,
+      elements, selectedElementIds, selectionBox: selectionBox || singleSelectedArtboard,
       setElements, setSelectedElementIds, setOffset, setSelectionRect, setActiveGroupBoundingBox
     };
 
     // Ordem de prioridade das interações
     const interaction =
+      tryStartArtboardResize(context) ||
       tryStartPanning(context) ||
       tryStartTransform(context) ||
       tryStartDragging(context) ||
@@ -85,14 +92,19 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
 
   const handleMouseMove = useCallback((event) => {
     const { handler, data } = interactionState.current;
-    if (!handler) return;
-
-    event.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const mousePos = getMousePosition(event, canvas);
     const worldPos = getPointInWorld(mousePos, offset, scale);
+
+    // If no interaction is active, just check hover
+    if (!handler) {
+      const hoveredElement = getClickedElement(worldPos, elements);
+      setHoveredElementId(hoveredElement ? hoveredElement.id : null);
+      return;
+    }
+
+    event.preventDefault();
 
     let dx = 0;
     let dy = 0;
@@ -102,12 +114,17 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     }
 
     const context = {
-      worldPos, mousePos, event, data,
+      worldPos,
+      mousePos,
+      event,
+      data,
       elements: data.liveElements,
       selectedElementIds,
-      dx, dy,
+      dx,
+      dy,
       setOffset,
       setSelectionRect,
+      setHighlightedArtboardId,
     };
 
     const result = handler(context);
@@ -125,7 +142,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     if (data.lastWorldPos) {
       interactionState.current.data.lastWorldPos = worldPos;
     }
-  }, [selectedElementIds, offset, scale, canvasRef, setOffset, setSelectionRect]);
+  }, [elements, selectedElementIds, offset, scale, canvasRef, setOffset, setSelectionRect, setHoveredElementId, setHighlightedArtboardId]);
 
   const handleMouseUp = useCallback(() => {
     const { handler, data } = interactionState.current;
@@ -145,7 +162,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
       const finalElements = [...elements, ...newClones];
       commit(finalElements);
       setSelectedElementIds(newCloneIds);
-    } else if (['dragging', 'resizing', 'rotating'].includes(type) && liveElements) {
+    } else if (['dragging', 'resizing', 'rotating', 'resizing-artboard'].includes(type) && liveElements) {
       const initial = initialGroupState ? initialGroupState.elements : (startElements || []).map(s => s.element || s);
       if (haveElementsChanged(initial, liveElements.filter(el => initial.some(i => i.id === el.id)))) {
         commit(liveElements);
@@ -164,11 +181,15 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     interactionState.current = { handler: null, data: {} };
     setActiveGroupBoundingBox(null);
     setSelectionRect(null);
+    setHighlightedArtboardId(null);
   }, [canvasRef, elements, selectionRect, commit, setSelectedElementIds, setActiveGroupBoundingBox]);
 
   return {
     selectedElementIds,
     setSelectedElementIds,
+    hoveredElementId,
+    highlightedArtboardId,
+    setHighlightedArtboardId,
     selectionRect,
     selectionBox,
     groupRotation,

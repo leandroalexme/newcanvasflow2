@@ -1,4 +1,5 @@
 import { translateElements, rotateElement, resizeElement, transformGroup_rotate, transformGroup_resize } from './transformations';
+import { updateArtboardAssociation } from '../artboard/artboardAssociation';
 
 export const handlePanning = (context) => {
   const { mousePos, data, setOffset } = context;
@@ -26,7 +27,7 @@ export const handleSelecting = (context) => {
 };
 
 export const handleDragging = (context) => {
-  const { data, elements, dx, dy } = context;
+  const { data, elements, dx, dy, setHighlightedArtboardId } = context;
   const { startElements, interactionBox } = data;
 
   if (!interactionBox) {
@@ -34,15 +35,33 @@ export const handleDragging = (context) => {
   }
 
   const elementIdsToMove = new Set(startElements.map(el => el.id));
+  const primaryDraggedElement = startElements[0];
+  
+  // Se estiver arrastando um artboard, move seus filhos também.
+  if (primaryDraggedElement.type === 'artboard') {
+    elements.forEach(el => {
+      if (el.parentId === primaryDraggedElement.id) {
+        elementIdsToMove.add(el.id);
+      }
+    });
+  }
 
-  // Aplica o delta diretamente aos elementos selecionados na cópia "viva"
-  const updatedElements = elements.map(el => {
+  // Aplica o delta aos elementos selecionados
+  let updatedElements = elements.map(el => {
     if (elementIdsToMove.has(el.id)) {
       return { ...el, x: el.x + dx, y: el.y + dy };
     }
     return el;
   });
 
+  // Checa e atualiza a associação com o artboard
+  const associationResult = updateArtboardAssociation(
+    updatedElements.filter(el => elementIdsToMove.has(el.id)),
+    updatedElements
+  );
+  updatedElements = associationResult.updatedElements;
+  setHighlightedArtboardId(associationResult.highlightedArtboardId);
+  
   // Aplica o mesmo delta à caixa de interação
   const newBoundingBox = {
     ...interactionBox,

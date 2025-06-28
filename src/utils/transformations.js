@@ -1,4 +1,4 @@
-import { rotatePoint } from './geometry';
+import { rotatePoint, getElementCenter } from './geometry';
 
 /**
  * Translada (move) um conjunto de elementos.
@@ -64,18 +64,11 @@ export const resizeElement = (
 ) => {
   // --- 0. Setup ---
   const { rotation = 0 } = element;
-  const originalWidth = element.width || (element.radiusX || element.radius) * 2;
-  const originalHeight = element.height || (element.radiusY || element.radius) * 2;
+  const originalWidth = element.type === 'circle' ? (element.radiusX || element.radius) * 2 : element.width;
+  const originalHeight = element.type === 'circle' ? (element.radiusY || element.radius) * 2 : element.height;
   const aspectRatio = originalWidth > 0 && originalHeight > 0 ? originalWidth / originalHeight : 1;
 
-  const elementCenter = {
-    x: element.x + (element.width ? originalWidth / 2 : 0),
-    y: element.y + (element.height ? originalHeight / 2 : 0),
-  };
-  if (element.type === 'circle') {
-    elementCenter.x = element.x;
-    elementCenter.y = element.y;
-  }
+  const elementCenter = getElementCenter(element);
 
   const localMouse = rotatePoint(worldPos, elementCenter, -rotation);
   const isCornerHandle = !handleType.includes('middle') && !handleType.includes('center');
