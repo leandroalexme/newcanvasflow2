@@ -1,0 +1,29 @@
+.logo-container {
+  position: absolute;
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+  z-index: var(--z-index-header);
+  display: flex;
+  align-items: center;
+  mix-blend-mode: difference;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 24px;
+  color: white;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.logo-beta {
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  margin-left: var(--spacing-1);
+  letter-spacing: 0.5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 2px 5px;
+  border-radius: 4px;
+  display: inline-block;
+} 

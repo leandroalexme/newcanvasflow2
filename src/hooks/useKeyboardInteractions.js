@@ -1,17 +1,24 @@
 import { useEffect, useRef } from 'react';
+import { useEditor } from '../context/EditorContext';
+import { useLayerOperations } from './useLayerOperations';
 
-export const useKeyboardInteractions = ({ 
+export const useKeyboardInteractions = () => {
+  const { 
   elements, 
   selectedElementIds, 
   commit, 
   setSelectedElementIds,
   undo,
   redo,
+  } = useEditor();
+  
+  const {
   bringToFront,
   sendToBack,
   bringForward,
   sendBackward
-}) => {
+  } = useLayerOperations();
+
   const clipboardRef = useRef(null);
 
   useEffect(() => {

@@ -1,18 +1,121 @@
+:root {
+  /* Colors */
+  --color-background: #202124;
+  --color-panel-background: #1A1A1A;
+  --color-surface-1: #383838;
+  --color-surface-2: #2A2A2A; /* Used for selected items & hover */
+  --color-primary: #007bff; /* Kept for accents like checkboxes */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #8A8A8A; /* Lighter gray for secondary info */
+  --color-text-tertiary: #000000;  /* For text on light backgrounds */
+  --color-title-inactive: #555555;
+  --color-border: #4A4A4A;
+  --color-handle: #444444;
+  --color-icon: #8A8A8A;
+  --color-icon-active: #ffffff;
+  --icon-size-action: 16px;
+  --color-button-active-bg: var(--color-text-primary);
+  --color-button-active-fg: var(--color-text-tertiary);
+  --color-icon-background: #ffffff;
+  --color-input-bg: #FFFFFF;
+  --color-input-fg: #000000;
+  --color-input-background: #f9f9f9;
+  --color-canvas-background: #333;
+
+  /* Typography */
+  --font-family-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 24px; /* Title Size */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-title: 600;
+
+  /* Spacing */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --size-toolbar-button: 44px;
+
+  /* Borders */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px; /* For icons and smaller elements */
+  --border-radius-lg: 16px; /* For panels */
+  --border-radius-circle: 50%;
+  --border-radius-button: 9999px;   /* Button corners */
+  --border-radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* Effects */
+  --panel-backdrop-filter: blur(10px);
+
+  /* Stacking Order */
+  --z-index-canvas: 0;
+  --z-index-panels: 10;
+  --z-index-header: 20;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* Prevent scrollbars from appearing */
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
 }
 
-.App {
-  text-align: center;
+.app-container {
+  position: relative; /* Establishes a positioning context for absolute children */
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-canvas {
-  background-color: #282c34;
-  display: block; /* remove extra space below canvas */
+.text-body {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+}
+
+.header { z-index: var(--z-index-header); }
+.left-toolbar, .right-toolbar, .bottom-toolbar, .properties-panel { z-index: var(--z-index-panels); }
+
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-canvas-background);
+  z-index: var(--z-index-canvas);
+}
+
+.toolbar-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--spacing-1) 0;
+}
+
+h1 {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--color-text-secondary);
+  z-index: 10;
+}
+
+.right-panels-container {
+  position: fixed;
+  top: 50%;
+  right: 88px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: var(--z-index-panels);
 }

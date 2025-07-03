@@ -1,11 +1,13 @@
 import { useCallback } from 'react';
+import { useEditor } from '../context/EditorContext';
 
 /**
  * Hook para operações de ordenação de camadas (trazer para frente, enviar para trás, etc.).
- * @param {{elements: Array, selectedElementIds: Array, setElements: Function, commit: Function}} props
  * @returns {{bringToFront: Function, sendToBack: Function, bringForward: Function, sendBackward: Function}}
  */
-export const useLayerOperations = ({ elements, selectedElementIds, setElements, commit }) => {
+export const useLayerOperations = () => {
+  const { elements, selectedElementIds, setElements, commit } = useEditor();
+
   const bringToFront = useCallback(() => {
     if (selectedElementIds.length === 0) return;
     const selected = elements.filter(el => selectedElementIds.includes(el.id));

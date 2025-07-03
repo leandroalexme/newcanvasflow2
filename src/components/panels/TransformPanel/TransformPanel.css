@@ -1,0 +1,135 @@
+/* TransformPanel.css - Extends Panel.css */
+
+.header-tabs {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  width: 100%;
+}
+
+.header-tabs .tab-active,
+.header-tabs .tab-inactive {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-title);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.header-tabs .tab-active {
+  color: var(--color-text-primary);
+}
+
+.header-tabs .tab-inactive {
+  color: var(--color-title-inactive);
+}
+
+.more-options-button {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.new-panel-content-grid {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.main-content-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.position-grid,
+.rotation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2);
+}
+
+.new-property-input {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-input-bg);
+  border-radius: var(--border-radius-pill);
+  height: 44px;
+  padding: 0 var(--spacing-1);
+}
+
+.prop-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-text-tertiary);
+  border-radius: var(--border-radius-circle);
+  color: var(--color-text-primary);
+}
+
+.prop-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: 0 var(--spacing-3);
+    color: var(--color-input-fg);
+}
+
+.new-property-input input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-input-fg);
+  text-align: right;
+  padding: 0 var(--spacing-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  height: 100%;
+}
+
+.new-property-input input:focus {
+  outline: none;
+}
+
+.constraint-area {
+  width: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+.constraint-area.unlocked {
+    color: #555; /* Needs a variable */
+}
+
+.lock-icon-wrapper {
+    padding: 4px 0;
+}
+
+.lock-connector {
+    width: 15px;
+    height: 49px;
+    stroke: currentColor;
+}
+
+.prop-icon-circle {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--color-text-secondary);
+    border-radius: 50%;
+    position: relative;
+}
+.rotation-line, .shear-line {
+    width: 1.5px;
+    height: 8px;
+    background-color: var(--color-text-secondary);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform-origin: bottom center;
+}

@@ -1,0 +1,161 @@
+.header-tabs {
+  display: flex;
+  gap: 10px;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+}
+
+.tab-active {
+  color: var(--color-text-primary);
+}
+
+.tab-inactive {
+  color: var(--color-text-primary);
+  opacity: 0.3;
+  cursor: pointer;
+}
+
+.more-options-button {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.layer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.layer-row.is-child {
+  padding-left: var(--spacing-5);
+}
+
+.layer-row.selected {
+  background-color: var(--color-surface-2);
+}
+
+.layer-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.layer-indent {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layer-info span {
+}
+
+.layer-icon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-icon-background);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+}
+
+.layer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.action-button {
+  background: transparent;
+  border: none;
+  color: var(--color-icon);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+.action-button:hover {
+  background-color: transparent;
+}
+
+.action-button:focus, .action-button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.action-button svg {
+  width: var(--icon-size-action);
+  height: var(--icon-size-action);
+}
+
+.visibility-button.is-hidden,
+.lock-button.is-locked {
+  opacity: 1;
+}
+
+.visibility-button.is-visible,
+.lock-button.is-unlocked {
+  opacity: 0.4;
+}
+
+.panel-handle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: var(--spacing-2);
+  cursor: ns-resize;
+}
+
+.handle-line {
+  width: 36px;
+  height: 4px;
+  background-color: var(--color-handle);
+  border-radius: 2px;
+}
+
+.layers-panel .header-tabs {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.layers-panel .tab-active,
+.layers-panel .tab-inactive {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-title);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+.layers-panel .tab-inactive {
+  color: var(--color-title-inactive);
+}
+
+.layers-panel .more-options-button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}

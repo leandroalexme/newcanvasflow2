@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { getAxisAlignedBoundingBox, calculateGroupSelectionBox } from '../utils/geometry';
+import { calculateGroupSelectionBox, getHandles, isPointInsideRotatedBox, getElementCenter } from '../core/geometry';
 
 export const useSelectionBox = (elements, selectedElementIds) => {
   const [activeGroupBoundingBox, setActiveGroupBoundingBox] = useState(null);

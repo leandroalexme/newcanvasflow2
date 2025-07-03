@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { drawScene } from '../utils/renderer';
+import { drawScene } from '../core/renderer/sceneRenderer';
 import { useFpsCalculator } from './useFpsCalculator';
 
 /**
@@ -22,6 +22,7 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
     offset,
     scale,
     handleWheel,
+    snapLines,
   } = sceneState;
 
   const { perfMetrics, markFrame } = useFpsCalculator();
@@ -42,7 +43,7 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
       const elementsToRender = interactionState.current?.data?.liveElements || elements;
       const boxToDraw = interactionState.current?.data?.interactionBox || selectionBox;
 
-      drawScene(context, offset, scale, elementsToRender, selectedElementIds, hoveredElementId, highlightedArtboardId, selectionRect, perfMetrics, boxToDraw);
+      drawScene(context, offset, scale, elementsToRender, selectedElementIds, hoveredElementId, highlightedArtboardId, selectionRect, boxToDraw, snapLines);
       animationFrameId = window.requestAnimationFrame(renderLoop);
     };
     renderLoop();
@@ -70,6 +71,7 @@ export const useRenderLoop = (canvasRef, dimensions, sceneState) => {
     handleWheel,
     markFrame,
     perfMetrics,
+    snapLines,
   ]);
 
   return { perfMetrics };

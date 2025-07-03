@@ -1,0 +1,26 @@
+.layers-button {
+  position: absolute;
+  bottom: var(--spacing-4);
+  right: var(--spacing-4);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--border-radius-button);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  z-index: var(--z-index-panels);
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+.layers-button:hover {
+  background-color: var(--color-surface-2);
+}
+
+.layers-button:active {
+  transform: scale(0.95);
+} 

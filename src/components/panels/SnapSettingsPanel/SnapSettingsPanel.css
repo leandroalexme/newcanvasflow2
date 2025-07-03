@@ -1,0 +1,69 @@
+.snap-settings-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.snap-settings-panel .header-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-title);
+  color: var(--color-text-primary);
+}
+
+.snap-settings-panel .panel-header h4 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+}
+
+.snap-settings-panel .close-btn {
+  background: none;
+  border: none;
+  color: var(--color-icon);
+  cursor: pointer;
+  padding: 0;
+}
+
+.snap-settings-panel .setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  height: 32px;
+}
+
+.snap-settings-panel .setting-row label {
+  color: var(--color-text-primary);
+}
+
+.snap-settings-panel .setting-row input[type="number"] {
+  width: 60px;
+  height: 100%;
+  padding: var(--spacing-1);
+  background-color: var(--color-surface-2);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-primary);
+  text-align: right;
+  padding-right: var(--spacing-2);
+}
+
+.snap-settings-panel input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 16px;
+  height: 16px;
+}
+
+.snap-settings-panel .divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--spacing-2) 0;
+}
+
+.snap-settings-panel .setting-group-header {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  margin-top: var(--spacing-2);
+}

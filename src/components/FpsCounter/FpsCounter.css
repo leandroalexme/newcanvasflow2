@@ -1,0 +1,10 @@
+.fps-counter {
+  position: absolute;
+  bottom: var(--spacing-3);
+  left: var(--spacing-3);
+  color: var(--color-text-secondary);
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  z-index: var(--z-index-panels);
+  pointer-events: none; /* Make it non-interactive */
+} 

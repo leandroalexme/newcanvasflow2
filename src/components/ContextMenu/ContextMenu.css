@@ -1,0 +1,62 @@
+.context-menu {
+  position: absolute;
+  width: 280px;
+  background-color: var(--color-panel-background);
+  backdrop-filter: var(--panel-backdrop-filter);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--spacing-3);
+  z-index: 100; /* Should be on top of everything */
+  border: none;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-button);
+  cursor: pointer;
+  gap: var(--spacing-3);
+  transition: background-color 0.2s ease;
+  margin-bottom: var(--spacing-1);
+  height: 36px;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item svg {
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.menu-label {
+  flex-grow: 1;
+  font-weight: 500;
+}
+
+.menu-shortcut {
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-button);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.menu-submenu-arrow {
+  color: var(--color-text-secondary);
+  margin-left: var(--spacing-1);
+}
+
+.menu-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--spacing-3) 0;
+  opacity: 0.5;
+} 

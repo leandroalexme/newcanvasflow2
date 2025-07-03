@@ -1,0 +1,14 @@
+.zoom-control-container {
+  position: absolute;
+  top: var(--spacing-4);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-2) var(--spacing-4);
+  background-color: var(--color-panel-background);
+  backdrop-filter: var(--panel-backdrop-filter);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-panel);
+  z-index: var(--z-index-panels);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+} 

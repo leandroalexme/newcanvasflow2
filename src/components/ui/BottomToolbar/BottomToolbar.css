@@ -1,0 +1,36 @@
+.bottom-toolbar {
+  position: absolute;
+  bottom: var(--spacing-5);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  background-color: var(--color-panel-background);
+  border-radius: var(--border-radius-lg);
+}
+
+.tool-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--size-toolbar-button);
+  height: var(--size-toolbar-button);
+  border: none;
+  background-color: transparent;
+  color: var(--color-icon);
+  border-radius: var(--border-radius-circle);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tool-button:hover {
+  background-color: var(--color-surface-2);
+  color: var(--color-icon-active);
+}
+
+.tool-button.active {
+  background-color: var(--color-button-active-bg);
+  color: var(--color-button-active-fg);
+} 

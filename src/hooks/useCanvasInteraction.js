@@ -10,32 +10,45 @@ import {
   calculateGroupSelectionBox,
   isPointInsideRotatedBox,
   getElementCenter
-} from '../utils/geometry';
+} from '../core/geometry';
 import {
   translateElements,
   rotateElement,
   resizeElement,
   rotateElements,
   resizeElements,
-} from '../utils/transformations';
-import { haveElementsChanged } from '../utils/history';
-import { getMousePosition } from '../utils/geometry';
+} from '../core/transformations';
+import { haveElementsChanged, deepClone } from '../utils/helpers';
+import { getMousePosition } from '../core/geometry';
 import { useSelectionBox } from './useSelectionBox';
-import * as ActionHandler from '../utils/actionHandlers';
-import { tryStartPanning } from '../interactions/pan';
-import { tryStartTransform } from '../interactions/transform';
-import { tryStartDragging } from '../interactions/drag';
-import { startMarqueeSelection } from '../interactions/select';
-import { tryStartArtboardResize } from '../artboard/artboardInteractions';
+import { tryStartPanning } from '../modules/interactions/panInteraction';
+import { tryStartTransform } from '../modules/interactions/transformInteraction';
+import { tryStartDragging } from '../modules/interactions/dragInteraction';
+import { startMarqueeSelection } from '../modules/interactions/selectionInteraction';
+import { tryStartArtboardResize } from '../modules/artboard/artboardInteractions';
+import { updateArtboardAssociation } from '../modules/artboard/artboardAssociation';
+import useHistory from './useHistory';
+import { snapManager } from '../modules/snapping/snapManager';
+import { useEditor } from '../context/EditorContext';
 
-// Helper para clonar profundamente, garantindo que não haja referências presas.
-const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
-
-export const useCanvasInteraction = (elements, setElements, commit, canvasRef, offset, scale, setOffset) => {
-  const [selectedElementIds, setSelectedElementIds] = useState([]);
+export const useCanvasInteraction = (
+  canvasRef, 
+  offset, 
+  scale, 
+  setOffset,
+  snapSettings
+) => {
+  const { 
+    elements, 
+    setElements, 
+    commit, 
+    selectedElementIds, 
+    setSelectedElementIds 
+  } = useEditor();
   const [hoveredElementId, setHoveredElementId] = useState(null);
   const [highlightedArtboardId, setHighlightedArtboardId] = useState(null);
   const [selectionRect, setSelectionRect] = useState(null);
+  const [snapLines, setSnapLines] = useState([]);
   const interactionState = useRef({ handler: null, data: {} });
   const didDuplicateOnDragRef = useRef(false);
 
@@ -75,7 +88,9 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     const context = {
       event, canvas, mousePos, worldPos, offset, scale,
       elements, selectedElementIds, selectionBox: selectionBox || singleSelectedArtboard,
-      setElements, setSelectedElementIds, setOffset, setSelectionRect, setActiveGroupBoundingBox
+      setElements, setSelectedElementIds, setOffset, setSelectionRect, setActiveGroupBoundingBox,
+      setSnapLines,
+      snapSettings
     };
 
     // Ordem de prioridade das interações
@@ -88,7 +103,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
 
     interactionState.current = interaction;
 
-  }, [elements, selectedElementIds, offset, scale, canvasRef, selectionBox, setElements, setSelectedElementIds, setOffset, setSelectionRect, setActiveGroupBoundingBox]);
+  }, [elements, selectedElementIds, offset, scale, canvasRef, selectionBox, setElements, setSelectedElementIds, setOffset, setSelectionRect, setActiveGroupBoundingBox, setSnapLines, snapSettings]);
 
   const handleMouseMove = useCallback((event) => {
     const { handler, data } = interactionState.current;
@@ -122,9 +137,15 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
       selectedElementIds,
       dx,
       dy,
+      scale,
+      shiftKey: event.shiftKey,
+      metaKey: event.metaKey,
+      ctrlKey: event.ctrlKey,
       setOffset,
       setSelectionRect,
       setHighlightedArtboardId,
+      setSnapLines,
+      snapSettings
     };
 
     const result = handler(context);
@@ -142,7 +163,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     if (data.lastWorldPos) {
       interactionState.current.data.lastWorldPos = worldPos;
     }
-  }, [elements, selectedElementIds, offset, scale, canvasRef, setOffset, setSelectionRect, setHoveredElementId, setHighlightedArtboardId]);
+  }, [elements, selectedElementIds, offset, scale, canvasRef, setOffset, setSelectionRect, setHoveredElementId, setHighlightedArtboardId, setSnapLines, snapSettings]);
 
   const handleMouseUp = useCallback(() => {
     const { handler, data } = interactionState.current;
@@ -163,9 +184,14 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
       commit(finalElements);
       setSelectedElementIds(newCloneIds);
     } else if (['dragging', 'resizing', 'rotating', 'resizing-artboard'].includes(type) && liveElements) {
+      const movedElementIds = new Set(startElements.map(e => e.element ? e.element.id : e.id));
+      const movedElements = liveElements.filter(el => movedElementIds.has(el.id));
+      
+      const { updatedElements: elementsWithNewParents } = updateArtboardAssociation(movedElements, liveElements);
+
       const initial = initialGroupState ? initialGroupState.elements : (startElements || []).map(s => s.element || s);
-      if (haveElementsChanged(initial, liveElements.filter(el => initial.some(i => i.id === el.id)))) {
-        commit(liveElements);
+      if (haveElementsChanged(initial, elementsWithNewParents.filter(el => initial.some(i => i.id === el.id)))) {
+        commit(elementsWithNewParents);
       }
     }
 
@@ -182,11 +208,10 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     setActiveGroupBoundingBox(null);
     setSelectionRect(null);
     setHighlightedArtboardId(null);
-  }, [canvasRef, elements, selectionRect, commit, setSelectedElementIds, setActiveGroupBoundingBox]);
+    setSnapLines([]);
+  }, [canvasRef, elements, selectionRect, commit, setSelectedElementIds, setActiveGroupBoundingBox, setSnapLines]);
 
   return {
-    selectedElementIds,
-    setSelectedElementIds,
     hoveredElementId,
     highlightedArtboardId,
     setHighlightedArtboardId,
@@ -194,6 +219,7 @@ export const useCanvasInteraction = (elements, setElements, commit, canvasRef, o
     selectionBox,
     groupRotation,
     interactionState,
+    snapLines,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
